@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(npx oxlint *)",
+      "Bash(chromium-cli --help)",
+      "Bash(npx --yes playwright --version)",
+      "Bash(npx --yes playwright install chromium)",
+      "Bash(mkdir -p 'C:\\\\Users\\\\wony2\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-wony2-movie-booking-app\\\\90981727-23a6-4328-9a92-492a8499608d\\\\scratchpad')",
+      "Bash(npm init *)",
+      "Bash(node drive.js)",
+      "Bash(rm -rf \"C:\\\\Users\\\\wony2\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-wony2-movie-booking-app\\\\90981727-23a6-4328-9a92-492a8499608d\\\\scratchpad\\\\shots\")",
+      "mcp__claude_ai_Notion__notion-create-pages",
+      "Bash(rm -rf \"C:\\\\Users\\\\wony2\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-wony2-movie-booking-app\\\\90981727-23a6-4328-9a92-492a8499608d\\\\scratchpad\\\\shots\" \"C:\\\\Users\\\\wony2\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-wony2-movie-booking-app\\\\90981727-23a6-4328-9a92-492a8499608d\\\\scratchpad\\\\node_modules\" \"C:\\\\Users\\\\wony2\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-wony2-movie-booking-app\\\\90981727-23a6-4328-9a92-492a8499608d\\\\scratchpad\\\\roadmap-merged.png\" \"C:\\\\Users\\\\wony2\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-wony2-movie-booking-app\\\\90981727-23a6-4328-9a92-492a8499608d\\\\scratchpad\\\\roadmap-portfolio.png\" *)",
+      "Bash(node -e \"console.log\\(require.resolve\\('playwright'\\)\\)\")",
+      "Bash(npm ls *)",
+      "Bash(timeout 40 npm install -D playwright --no-audit --no-fund)",
+      "Bash(node -e \"const {chromium}=require\\('playwright'\\); \\(async\\(\\)=>{try{const b=await chromium.launch\\(\\);console.log\\('launched ok'\\);await b.close\\(\\);}catch\\(e\\){console.log\\('LAUNCH_FAIL:',e.message\\)}}\\)\\(\\)\")",
+      "Bash(node \"C:/Users/wony2/AppData/Local/Temp/claude/d--dev-movie-booking-app/e8c7464b-044a-4785-baac-4fa38b3bfa84/scratchpad/drive.js\")",
+      "Bash(cp \"C:/Users/wony2/AppData/Local/Temp/claude/d--dev-movie-booking-app/e8c7464b-044a-4785-baac-4fa38b3bfa84/scratchpad/drive.js\" \"d:/dev/movie-booking-app/drive.tmp.js\")",
+      "Bash(node drive.tmp.js)",
+      "Bash(mv \"d:/dev/movie-booking-app/drive.tmp.js\" \"d:/dev/movie-booking-app/drive.tmp.cjs\")",
+      "Bash(node drive.tmp.cjs)",
+      "Bash(node drive2.tmp.cjs)",
+      "Bash(rm -f drive.tmp.cjs drive2.tmp.cjs)",
+      "Bash(lsof -ti:5183 -sTCP:LISTEN)",
+      "Bash(xargs -r kill)",
+      "Bash(npm uninstall *)",
+      "mcp__claude_ai_Notion__notion-update-page"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\wony2\\AppData\\Local\\Temp\\claude\\c--Users-wony2-movie-booking-app\\90981727-23a6-4328-9a92-492a8499608d\\scratchpad\\node_modules"
+    ]
+  }
+}
