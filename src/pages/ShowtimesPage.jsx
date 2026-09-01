@@ -32,8 +32,8 @@ export default function ShowtimesPage() {
         </div>
         <div>
           <h1 className="page-title">{movie.title}</h1>
-          <p className="page-subtitle">{movie.genre} · {movie.runtime}분 · {movie.rating}</p>
-          <p className="page-subtitle" style={{ marginTop: -18 }}>감독 {movie.director} · 개봉일 {movie.releaseDate}</p>
+          <p className="page-subtitle" style={{ margin: '6px 0 0' }}>{movie.genre} · {movie.runtime}분 · {movie.rating}</p>
+          <p className="movie-sub-meta">감독 {movie.director} · 개봉일 {movie.releaseDate}</p>
           <p className="movie-synopsis-full">{movie.synopsis}</p>
         </div>
       </div>

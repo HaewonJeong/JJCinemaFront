@@ -1,15 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createMovie, getMovie, updateMovie } from '../api/mockApi';
-
-const GENRE_OPTIONS = ['액션', '드라마', '코미디', '로맨스', '스릴러', '공포', 'SF', '판타지', '애니메이션', '다큐멘터리', '뮤지컬', '범죄'];
-const RATING_OPTIONS = ['전체', '12세', '15세', '19세'];
+import { createMovie, getGenres, getMovie, getRatings, updateMovie } from '../api/mockApi';
 
 const emptyForm = {
   title: '',
-  genre: GENRE_OPTIONS[0],
+  genre: '',
   runtime: '',
-  rating: RATING_OPTIONS[0],
+  rating: '',
   director: '',
   releaseDate: '',
   synopsis: '',
@@ -23,6 +20,8 @@ export default function AdminMovieFormPage() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState(emptyForm);
+  const [genreOptions, setGenreOptions] = useState([]);
+  const [ratingOptions, setRatingOptions] = useState([]);
   const [loading, setLoading] = useState(isEdit);
   const [submitting, setSubmitting] = useState(false);
 
@@ -32,9 +31,9 @@ export default function AdminMovieFormPage() {
       if (m) {
         setForm({
           title: m.title ?? '',
-          genre: GENRE_OPTIONS.includes(m.genre) ? m.genre : GENRE_OPTIONS[0],
+          genre: m.genre ?? '',
           runtime: String(m.runtime ?? ''),
-          rating: RATING_OPTIONS.includes(m.rating) ? m.rating : RATING_OPTIONS[0],
+          rating: m.rating ?? '',
           director: m.director ?? '',
           releaseDate: m.releaseDate ?? '',
           synopsis: m.synopsis ?? '',
@@ -45,6 +44,21 @@ export default function AdminMovieFormPage() {
       setLoading(false);
     });
   }, [isEdit, movieId]);
+
+  useEffect(() => {
+  getGenres().then((list) => {
+    setGenreOptions(list);
+    if (!isEdit && list.length > 0) {
+      setForm((f) => ({ ...f, genre: f.genre || list[0].genreName }));
+    }
+  }).catch(() => {});
+  getRatings().then((list) => {
+    setRatingOptions(list);
+    if (!isEdit && list.length > 0) {
+      setForm((f) => ({ ...f, rating: f.rating || list[0].name }));
+    }
+  }).catch(() => {});
+}, [isEdit]);
 
   function handlePosterChange(e) {
     const file = e.target.files?.[0];
@@ -114,7 +128,7 @@ export default function AdminMovieFormPage() {
               value={form.genre}
               onChange={(e) => setForm((f) => ({ ...f, genre: e.target.value }))}
             >
-              {GENRE_OPTIONS.map((g) => <option key={g} value={g}>{g}</option>)}
+              {genreOptions.map((g) => <option key={g.genreId} value={g.genreName}>{g.genreName}</option>)}
             </select>
           </div>
 
@@ -137,7 +151,7 @@ export default function AdminMovieFormPage() {
               value={form.rating}
               onChange={(e) => setForm((f) => ({ ...f, rating: e.target.value }))}
             >
-              {RATING_OPTIONS.map((r) => <option key={r} value={r}>{r}</option>)}
+              {ratingOptions.map((r) => <option key={r.ratingId} value={r.name}>{r.name}</option>)}
             </select>
           </div>
 

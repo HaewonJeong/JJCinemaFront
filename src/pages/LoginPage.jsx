@@ -1,9 +1,20 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
   const { login } = useAuth();
+  //토스트 상태 추가
+  const location = useLocation();
+  const [toast, setToast] = useState(location.state?.message || '');
+  
+  useEffect(() => {
+  if (!toast) return;
+  const timer = setTimeout(() => setToast(''), 3000);
+  navigate(location.pathname, { replace: true, state: {} }); // 히스토리에서 메시지 제거
+  return () => clearTimeout(timer);
+}, []); 
+
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,14 +35,10 @@ export default function LoginPage() {
     }
   }
 
-  function quickLogin(demoEmail, demoPassword) {
-    setEmail(demoEmail);
-    setPassword(demoPassword);
-  }
-
   return (
     <div className="login-page">
-      <form className="login-card" onSubmit={handleSubmit}>
+      {toast && <div className="toast toast-success">{toast}</div>}
+    <form className="login-card" onSubmit={handleSubmit} noValidate>
         <h1 className="login-title">🎬 JJCinema</h1>
         <p className="login-subtitle">로그인하고 원하는 좌석을 예매하세요</p>
 
@@ -64,15 +71,6 @@ export default function LoginPage() {
         </button>
 
         <div className="demo-box">
-          <p className="demo-title">데모 계정으로 빠르게 확인해보세요</p>
-          <div className="demo-buttons">
-            <button type="button" className="btn btn-outline" onClick={() => quickLogin('minjun@example.com', 'customer123')}>
-              고객 계정 채우기
-            </button>
-            <button type="button" className="btn btn-outline" onClick={() => quickLogin('admin@cinema.com', 'admin123')}>
-              관리자 계정 채우기
-            </button>
-          </div>
           <p className="demo-title" style={{ marginTop: 16, marginBottom: 0 }}>
             계정이 없으신가요? <Link to="/signup">회원가입</Link>
           </p>

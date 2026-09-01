@@ -38,7 +38,6 @@ export default function AdminLayout() {
           )}
 
           <NavLink to="/admin/users" className={tabClass} end>회원 관리</NavLink>
-          <NavLink to="/admin/todo" className={tabClass} end>할 일 체크리스트</NavLink>
         </nav>
       </aside>
 

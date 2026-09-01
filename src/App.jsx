@@ -19,7 +19,6 @@ import AdminShowtimeFormPage from './pages/AdminShowtimeFormPage';
 import AdminShowtimeManagePage from './pages/AdminShowtimeManagePage';
 import AdminShowtimeEditPage from './pages/AdminShowtimeEditPage';
 import AdminUsersPage from './pages/AdminUsersPage';
-import TodoChecklistPage from './pages/TodoChecklistPage';
 
 function AppRoutes() {
   return (
@@ -53,7 +52,6 @@ function AppRoutes() {
               <Route path="showtimes" element={<AdminShowtimeManagePage />} />
               <Route path="showtimes/:showtimeId/edit" element={<AdminShowtimeEditPage />} />
               <Route path="users" element={<AdminUsersPage />} />
-              <Route path="todo" element={<TodoChecklistPage />} />
             </Route>
           </Route>
         </Route>

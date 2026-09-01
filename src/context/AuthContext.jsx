@@ -22,10 +22,7 @@ export function AuthProvider({ children }) {
   }
 
   async function signup(name, email, password) {
-    const newUser = await apiSignup({ name, email, password });
-    setUser(newUser);
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(newUser));
-    return newUser;
+    await apiSignup({ name, email, password });
   }
 
   function logout() {
