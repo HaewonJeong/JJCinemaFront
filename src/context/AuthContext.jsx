@@ -1,23 +1,21 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { login as apiLogin, signup as apiSignup } from '../api/mockApi';
+import { login as apiLogin, signup as apiSignup, getCurrentUser, logout as apiLogout } from '../api/mockApi';
 
 const AuthContext = createContext(null);
-const STORAGE_KEY = 'movie_booking_current_user';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (raw) setUser(JSON.parse(raw));
-    setLoading(false);
+    getCurrentUser()
+      .then(setUser)
+      .finally(() => setLoading(false));
   }, []);
 
   async function login(email, password) {
     const loggedInUser = await apiLogin(email, password);
     setUser(loggedInUser);
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(loggedInUser));
     return loggedInUser;
   }
 
@@ -25,9 +23,9 @@ export function AuthProvider({ children }) {
     await apiSignup({ name, email, password });
   }
 
-  function logout() {
+  async function logout() {
+    await apiLogout();
     setUser(null);
-    sessionStorage.removeItem(STORAGE_KEY);
   }
 
   return (

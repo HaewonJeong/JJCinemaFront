@@ -12,6 +12,7 @@ export function AdminRoute() {
   const { user, loading } = useAuth();
   if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
-  if (user.role !== 'admin') return <Navigate to="/movies" replace />;
-  return <Outlet />;
+  //admin이 아닌 유저가 로그인 할 경우 AdminRoute에서 이동
+  if (user.role !== 'admin') return <Navigate to="/movies" replace />; 
+  return <Outlet />; 
 }

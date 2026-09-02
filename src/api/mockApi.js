@@ -4,114 +4,11 @@
 // "제출 시점에 좌석 상태를 다시 확인"하는 방식으로 만들었습니다 — 실제 서버라면
 // 이 확인+예약 사이의 틈을 막기 위해 락(비관적 락 등)이 필요합니다.
 
-const DB_KEY = 'movie_booking_db_v1';
-const LATENCY = 300;
 const API_BASE = 'http://localhost:8080/api'; //백엔드 주소 상수 추가
-const HOLD_TIMEOUT_MS = 5 * 60 * 1000; // 좌석 임시선점 유효시간(5분)
-
-function delay(value) {
-  return new Promise((resolve) => setTimeout(() => resolve(value), LATENCY));
-}
-
-function pad(n) {
-  return String(n).padStart(2, '0');
-}
-
-function toDateStr(d) {
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
 
 const ROWS = ['A', 'B', 'C', 'D', 'E'];
 const COLS = [1, 2, 3, 4, 5, 6, 7, 8];
 
-function allSeatCodes() {
-  const seats = [];
-  ROWS.forEach((r) => COLS.forEach((c) => seats.push(`${r}${c}`)));
-  return seats;
-}
-
-function seedDB() {
-  const users = [
-    { id: 'u-admin', name: '박관리', email: 'admin@cinema.com', password: 'admin123', role: 'admin', active: true },
-    { id: 'u-1', name: '김민준', email: 'minjun@example.com', password: 'customer123', role: 'customer', active: true },
-    { id: 'u-2', name: '이서연', email: 'seoyeon@example.com', password: 'customer123', role: 'customer', active: true },
-  ];
-
-  const movies = [
-    { id: 'm-1', title: '별의 궤도', genre: 'SF', runtime: 128, rating: '12세', poster: '🌌', director: '최현우', releaseDate: '2026-06-12', synopsis: '우주 정거장에서 벌어지는 생존과 선택의 이야기.', status: '상영중' },
-    { id: 'm-2', title: '마지막 골목', genre: '스릴러', runtime: 111, rating: '15세', poster: '🌆', director: '오정민', releaseDate: '2026-07-03', synopsis: '재개발 직전 골목에서 벌어진 실종 사건을 쫓는 형사.', status: '상영중' },
-    { id: 'm-3', title: '봄날의 스케치', genre: '드라마', runtime: 104, rating: '전체', poster: '🌸', director: '한지수', releaseDate: '2026-05-22', synopsis: '20년 만에 재회한 두 친구의 잔잔한 성장기.', status: '상영중' },
-    { id: 'm-4', title: '레드 라인', genre: '액션', runtime: 132, rating: '15세', poster: '🔥', director: '브라이언 최', releaseDate: '2026-07-24', synopsis: '국경을 넘나드는 추격전, 멈출 수 없는 질주.', status: '상영중' },
-    { id: 'm-5', title: '딥 오션', genre: '다큐멘터리', runtime: 96, rating: '전체', poster: '🐋', director: '이수아', releaseDate: '2026-09-05', synopsis: '심해 생태계를 담은 몰입형 다큐멘터리.', status: '상영예정' },
-  ];
-
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const dateStrs = [toDateStr(today), toDateStr(tomorrow)];
-  const times = ['10:30', '13:20', '16:10', '19:00', '21:40'];
-  const theaters = ['1관', '2관', '3관'];
-
-  const showtimes = [];
-  let stIdx = 1;
-  movies.filter((m) => m.status === '상영중').forEach((movie, mIdx) => {
-    dateStrs.forEach((date) => {
-      const dayTimes = times.slice(mIdx % 2, mIdx % 2 + 3);
-      dayTimes.forEach((time, tIdx) => {
-        showtimes.push({
-          id: `st-${stIdx++}`,
-          movieId: movie.id,
-          date,
-          time,
-          theater: theaters[(mIdx + tIdx) % theaters.length],
-          price: 14000,
-        });
-      });
-    });
-  });
-
-  // 몇몇 상영에는 미리 예약된 좌석을 시드로 채워서 화면에 데이터가 보이게 함
-  const bookings = [];
-  const presetTaken = {
-    [showtimes[0]?.id]: ['C4', 'C5', 'D4'],
-    [showtimes[1]?.id]: ['A1', 'A2'],
-    [showtimes[3]?.id]: ['E7', 'E8'],
-  };
-  Object.entries(presetTaken).forEach(([showtimeId, seatIds], idx) => {
-    if (!showtimeId || showtimeId === 'undefined') return;
-    bookings.push({
-      id: `bk-seed-${idx}`,
-      userId: 'u-2',
-      showtimeId,
-      seatIds,
-      status: '예매완료',
-      bookedAt: toDateStr(today),
-      totalPrice: seatIds.length * 14000,
-    });
-  });
-
-  const db = { users, movies, showtimes, bookings, payments: [] };
-  localStorage.setItem(DB_KEY, JSON.stringify(db));
-  return db;
-}
-
-function getDB() {
-  const raw = localStorage.getItem(DB_KEY);
-  if (!raw) return seedDB();
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return seedDB();
-  }
-}
-
-function saveDB(db) {
-  localStorage.setItem(DB_KEY, JSON.stringify(db));
-}
-
-export function resetDemoData() {
-  return delay(seedDB());
-}
 
 //login 
 export async function login(email, password) {
@@ -165,20 +62,50 @@ export async function signup({name, email, password}) {
   
 }
 
+//회원 조회
 export async function getAllUsers() {
-  const db = getDB();
-  return delay(db.users.map(({ password, ...safe }) => safe));
+  const res = await fetch(`${API_BASE}/admin/users`, {
+    credentials: 'include',
+  });
+  const body = await res.json();
+  if (!res.ok) {
+    throw new Error(body.message || '회원 목록을 불러오지 못했습니다.');
+  }
+  return body.data.map((u) => ({
+    id: String(u.id),
+    name: u.name,
+    email: u.email,
+    role: u.role.toLowerCase(),
+    active: u.active,
+  }));
 }
 
+//회원 업데이트
 export async function updateUser(userId, patch) {
-  const db = getDB();
-  const idx = db.users.findIndex((u) => u.id === userId);
-  if (idx === -1) return Promise.reject(new Error('회원을 찾을 수 없습니다.'));
-  db.users[idx] = { ...db.users[idx], ...patch };
-  saveDB(db);
-  const { password, ...safe } = db.users[idx];
-  return delay(safe);
+  const requestBody = {};
+  if (patch.role !== undefined) requestBody.role = patch.role.toUpperCase();
+  if (patch.active !== undefined) requestBody.active = patch.active;
+
+  const res = await fetch(`${API_BASE}/admin/user/${userId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(requestBody),
+  });
+  const result = await res.json();
+  if (!res.ok) {
+    throw new Error(result.message || '회원 정보 수정에 실패했습니다.');
+  }
+  const u = result.data;
+  return {
+    id: String(u.id),
+    name: u.name,
+    email: u.email,
+    role: u.role.toLowerCase(),
+    active: u.active,
+  };
 }
+
 
 //장르/등급 이름 사전 헬퍼 추가
 // 장르/등급은 백엔드가 id로만 주기 때문에, id -> 이름으로 바꿔줄 사전이 필요함.
@@ -277,19 +204,6 @@ export async function getShowtimes(movieId) {
   }));
 }
 
-function isHoldActive(booking) {
-  if (booking.status !== '결제대기') return false;
-  return Date.now() - new Date(booking.heldAt).getTime() < HOLD_TIMEOUT_MS;
-}
-
-function bookedSeatsFor(db, showtimeId) {
-  const taken = new Set();
-  db.bookings
-    .filter((b) => b.showtimeId === showtimeId && (b.status === '예매완료' || isHoldActive(b)))
-    .forEach((b) => b.seatIds.forEach((s) => taken.add(s)));
-  return taken;
-}
-
 //좌석 정보 불러오기
 export async function getSeatMap(showtimeId) {
   const [seatRes, showtimeRes] = await Promise.all([
@@ -337,6 +251,7 @@ export async function getSeatMap(showtimeId) {
 — 락을 어찌어찌 우회해도 두 번째 INSERT가 무조건 터짐.
 충돌 나면 409 Conflict + "이미 선점된 좌석이 있습니다." 응답. */
 export async function createBooking(userId, showtimeId, seatIds) {
+  var aa=JSON.stringify({ showtimeId: Number(showtimeId), seatCodes: seatIds });
   const res = await fetch(`${API_BASE}/bookings`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -592,19 +507,36 @@ export async function updateShowtimesBulk(showtimeIds, patch) {
   return body.data.map(toDisplayShowtime);
 }
 
+//관리자 통계
 export async function getBookingStats() {
-  const db = getDB();
-  const today = toDateStr(new Date());
-  const confirmed = db.bookings.filter((b) => b.status === '예매완료');
-  const todayBookings = confirmed.filter((b) => b.bookedAt === today);
-  const totalSeatsSold = confirmed.reduce((n, b) => n + b.seatIds.length, 0);
-  const todayRevenue = todayBookings.reduce((n, b) => n + b.totalPrice, 0);
-  const totalRevenue = confirmed.reduce((n, b) => n + b.totalPrice, 0);
-  return delay({
-    todayBookingCount: todayBookings.length,
-    todayRevenue,
-    totalBookingCount: confirmed.length,
-    totalSeatsSold,
-    totalRevenue,
+  const res = await fetch(`${API_BASE}/admin/stats`, {
+    credentials: 'include',
+  });
+  const body = await res.json();
+  if (!res.ok) {
+    throw new Error(body.message || '통계를 불러오지 못했습니다.');
+  }
+  return body.data;
+}
+
+//새로고침 시 로그인 상태 복원용
+export async function getCurrentUser() {
+  const res = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
+  if (!res.ok) return null; // 로그인 안 된 상태
+  const body = await res.json();
+  return {
+    id: String(body.id),
+    name: body.name,
+    email: body.email,
+    role: body.role.toLowerCase(),
+    active: true,
+  };
+}
+
+//로그아웃
+export async function logout() {
+  await fetch(`${API_BASE}/auth/logout`, {
+    method: 'POST',
+    credentials: 'include',
   });
 }
