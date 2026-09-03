@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { getAllShowtimesAdmin, getBookingStats } from '../api/mockApi';
+import { getAllShowtimesAdmin } from '../api/showtimes';
+import { getBookingStats } from '../api/admin';
 import Pagination from '../components/Pagination';
 
 const PAGE_SIZE = 10;

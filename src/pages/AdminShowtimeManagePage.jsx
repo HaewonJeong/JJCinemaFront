@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getAllShowtimesAdmin, updateShowtimesBulk } from '../api/mockApi';
+import { getAllShowtimesAdmin, updateShowtimesBulk } from '../api/showtimes';
 
 export default function AdminShowtimeManagePage() {
   const [showtimes, setShowtimes] = useState([]);
@@ -9,6 +9,7 @@ export default function AdminShowtimeManagePage() {
   const [bulkTheater, setBulkTheater] = useState({});
   const [bulkPrice, setBulkPrice] = useState({});
   const [applyingMovieId, setApplyingMovieId] = useState(null);
+  const [error, setError] = useState('');
 
   async function refresh() {
     setLoading(true);
@@ -54,6 +55,7 @@ export default function AdminShowtimeManagePage() {
     if (Object.keys(patch).length === 0) return;
 
     setApplyingMovieId(group.movieId);
+    setError('');
     try {
       await updateShowtimesBulk(ids, patch);
       setSelected((sel) => {
@@ -64,6 +66,8 @@ export default function AdminShowtimeManagePage() {
       setBulkTheater((v) => ({ ...v, [group.movieId]: '' }));
       setBulkPrice((v) => ({ ...v, [group.movieId]: '' }));
       await refresh();
+    } catch (err) {
+      setError(err.message || '일괄 수정에 실패했습니다.');
     } finally {
       setApplyingMovieId(null);
     }
@@ -79,6 +83,11 @@ export default function AdminShowtimeManagePage() {
 
   return (
     <>
+      {error && (
+        <div className="panel">
+          <p className="form-error">{error}</p>
+        </div>
+      )}
       {groups.map((group) => {
         const selectedCount = group.items.filter((s) => selected[s.id]).length;
         const allChecked = group.items.length > 0 && selectedCount === group.items.length;

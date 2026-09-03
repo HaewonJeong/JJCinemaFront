@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { checkEmailAvailable } from '../api/mockApi';
+import { checkEmailAvailable } from '../api/auth';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.com$/i;
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~`])[a-z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~`]{8,15}$/;

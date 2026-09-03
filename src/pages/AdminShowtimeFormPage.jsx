@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createShowtime, getMovies } from '../api/mockApi';
+import { createShowtime } from '../api/showtimes';
+import { getMovies } from '../api/movies';
 
 const MAX_SLOTS = 10;
 
@@ -12,6 +13,7 @@ export default function AdminShowtimeFormPage() {
   const [price, setPrice] = useState('14000');
   const [slots, setSlots] = useState([{ date: '', time: '' }]);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     getMovies().then(setMovies);
@@ -34,6 +36,8 @@ export default function AdminShowtimeFormPage() {
     const validSlots = slots.filter((s) => s.date && s.time);
     if (validSlots.length === 0) return;
     setSubmitting(true);
+    setError('');
+    let done = 0;
     try {
       for (const slot of validSlots) {
         await createShowtime({
@@ -43,8 +47,12 @@ export default function AdminShowtimeFormPage() {
           theater,
           price: Number(price) || 14000,
         });
+        done += 1;
       }
       navigate('/admin/schedule');
+    } catch (err) {
+      const prefix = done > 0 ? `${done}건 등록 후 중단됐습니다. ` : '';
+      setError(prefix + (err.message || '상영 등록에 실패했습니다.'));
     } finally {
       setSubmitting(false);
     }
@@ -54,6 +62,7 @@ export default function AdminShowtimeFormPage() {
     <div className="panel">
       <h2 className="panel-title">상영 등록</h2>
       <form onSubmit={handleSubmit}>
+        {error && <p className="form-error">{error}</p>}
         <div className="admin-form">
           <div className="field-full">
             <label className="field-label">영화</label>

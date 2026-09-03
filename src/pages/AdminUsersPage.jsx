@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { getAllUsers, updateUser } from '../api/mockApi';
+import { getAllUsers, updateUser } from '../api/admin';
 import Pagination from '../components/Pagination';
 
 const PAGE_SIZE = 10;

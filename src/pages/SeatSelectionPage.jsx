@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { createBooking, getMovie, getSeatMap } from '../api/mockApi';
+import { createBooking } from '../api/bookings';
+import { getMovie } from '../api/movies';
+import { getSeatMap } from '../api/showtimes';
+import NotFoundState from '../components/NotFoundState';
 
 export default function SeatSelectionPage() {
   const { showtimeId } = useParams();
@@ -12,6 +15,7 @@ export default function SeatSelectionPage() {
   const [selected, setSelected] = useState([]);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState('loading'); // loading | ok | notfound
 
   async function refresh() {
     const data = await getSeatMap(showtimeId);
@@ -24,7 +28,18 @@ export default function SeatSelectionPage() {
   }
 
   useEffect(() => {
-    refresh();
+    let cancelled = false;
+    setStatus('loading');
+    refresh()
+      .then(() => {
+        if (!cancelled) setStatus('ok');
+      })
+      .catch(() => {
+        if (!cancelled) setStatus('notfound');
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [showtimeId]);
 
   function toggleSeat(seat) {
@@ -50,7 +65,15 @@ export default function SeatSelectionPage() {
     }
   }
 
-  if (!seatData || !seatData.showtime) return null;
+  if (status === 'loading') return null;
+  if (status === 'notfound' || !seatData || !seatData.showtime) {
+    return (
+      <NotFoundState
+        title="존재하지 않는 상영입니다"
+        message="요청하신 상영 회차를 찾을 수 없습니다. 삭제되었거나 잘못된 주소일 수 있습니다."
+      />
+    );
+  }
 
   const { showtime, rows, cols, seats } = seatData;
   const totalPrice = selected.length * showtime.price;

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getMovies } from '../api/mockApi';
+import { getMovies } from '../api/movies';
 
 export default function MovieListPage({ status }) {
   const [movies, setMovies] = useState([]);

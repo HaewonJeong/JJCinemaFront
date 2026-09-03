@@ -1,16 +1,26 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getShowtime, updateShowtime } from '../api/mockApi';
+import { getShowtime, updateShowtime } from '../api/showtimes';
+import NotFoundState from '../components/NotFoundState';
 
 export default function AdminShowtimeEditPage() {
   const { showtimeId } = useParams();
   const navigate = useNavigate();
   const [form, setForm] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [status, setStatus] = useState('loading'); // loading | ok | notfound
 
   useEffect(() => {
-    getShowtime(showtimeId).then((s) => {
-      if (s) {
+    let cancelled = false;
+    setStatus('loading');
+    getShowtime(showtimeId)
+      .then((s) => {
+        if (cancelled) return;
+        if (!s) {
+          setStatus('notfound');
+          return;
+        }
         setForm({
           movieTitle: s.movieTitle,
           date: s.date,
@@ -18,13 +28,20 @@ export default function AdminShowtimeEditPage() {
           theater: s.theater,
           price: String(s.price),
         });
-      }
-    });
+        setStatus('ok');
+      })
+      .catch(() => {
+        if (!cancelled) setStatus('notfound');
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [showtimeId]);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setSubmitting(true);
+    setError('');
     try {
       await updateShowtime(showtimeId, {
         date: form.date,
@@ -33,17 +50,30 @@ export default function AdminShowtimeEditPage() {
         price: Number(form.price) || 0,
       });
       navigate('/admin/showtimes');
+    } catch (err) {
+      setError(err.message || '상영 수정에 실패했습니다.');
     } finally {
       setSubmitting(false);
     }
   }
 
-  if (!form) return null;
+  if (status === 'loading') return null;
+  if (status === 'notfound' || !form) {
+    return (
+      <NotFoundState
+        title="존재하지 않는 상영입니다"
+        message="수정하려는 상영 회차를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다."
+        actionLabel="상영 관리로"
+        actionTo="/admin/showtimes"
+      />
+    );
+  }
 
   return (
     <div className="panel">
       <h2 className="panel-title">상영 수정 — {form.movieTitle}</h2>
       <form onSubmit={handleSubmit}>
+        {error && <p className="form-error">{error}</p>}
         <div className="admin-form">
           <div>
             <label className="field-label">날짜</label>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createMovie, getGenres, getMovie, getRatings, updateMovie } from '../api/mockApi';
+import { createMovie, getGenres, getMovie, getRatings, updateMovie } from '../api/movies';
+import NotFoundState from '../components/NotFoundState';
 
 const emptyForm = {
   title: '',
@@ -23,12 +24,18 @@ export default function AdminMovieFormPage() {
   const [genreOptions, setGenreOptions] = useState([]);
   const [ratingOptions, setRatingOptions] = useState([]);
   const [loading, setLoading] = useState(isEdit);
+  const [notFound, setNotFound] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!isEdit) return;
-    getMovie(movieId).then((m) => {
-      if (m) {
+    getMovie(movieId)
+      .then((m) => {
+        if (!m) {
+          setNotFound(true);
+          setLoading(false);
+          return;
+        }
         setForm({
           title: m.title ?? '',
           genre: m.genre ?? '',
@@ -40,9 +47,12 @@ export default function AdminMovieFormPage() {
           status: m.status ?? '상영중',
           posterUrl: m.posterUrl ?? '',
         });
-      }
-      setLoading(false);
-    });
+        setLoading(false);
+      })
+      .catch(() => {
+        setNotFound(true);
+        setLoading(false);
+      });
   }, [isEdit, movieId]);
 
   useEffect(() => {
@@ -95,6 +105,16 @@ export default function AdminMovieFormPage() {
   }
 
   if (loading) return null;
+  if (notFound) {
+    return (
+      <NotFoundState
+        title="존재하지 않는 영화입니다"
+        message="수정하려는 영화를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다."
+        actionLabel="영화 관리로"
+        actionTo="/admin/movies"
+      />
+    );
+  }
 
   return (
     <div className="panel">

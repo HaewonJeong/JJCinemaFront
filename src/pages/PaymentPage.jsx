@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { cancelBooking, createPayment, getBooking } from '../api/mockApi';
+import { cancelBooking, createPayment, getBooking } from '../api/bookings';
+import NotFoundState from '../components/NotFoundState';
 
 function formatRemaining(ms) {
   const clamped = Math.max(ms, 0);
@@ -16,6 +17,7 @@ export default function PaymentPage() {
   const [remainingMs, setRemainingMs] = useState(0);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
+  const [status, setStatus] = useState('loading'); // loading | ok | notfound
 
   const refresh = useCallback(async () => {
     const data = await getBooking(bookingId);
@@ -24,7 +26,18 @@ export default function PaymentPage() {
   }, [bookingId]);
 
   useEffect(() => {
-    refresh();
+    let cancelled = false;
+    setStatus('loading');
+    refresh()
+      .then(() => {
+        if (!cancelled) setStatus('ok');
+      })
+      .catch(() => {
+        if (!cancelled) setStatus('notfound');
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [refresh]);
 
   useEffect(() => {
@@ -60,7 +73,17 @@ export default function PaymentPage() {
     }
   }
 
-  if (!booking) return null;
+  if (status === 'loading') return null;
+  if (status === 'notfound' || !booking) {
+    return (
+      <NotFoundState
+        title="존재하지 않는 예매입니다"
+        message="요청하신 예매 정보를 찾을 수 없습니다. 이미 취소되었거나 잘못된 주소일 수 있습니다."
+        actionLabel="내 예매 내역으로"
+        actionTo="/my-bookings"
+      />
+    );
+  }
 
   if (booking.status === '예매완료') {
     return (

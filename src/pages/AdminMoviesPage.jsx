@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getAllMovies } from '../api/mockApi';
+import { getAllMovies } from '../api/movies';
 import Pagination from '../components/Pagination';
 
 const PAGE_SIZE = 10;

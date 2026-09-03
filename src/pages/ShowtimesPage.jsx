@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getMovie, getShowtimes } from '../api/mockApi';
+import { getMovie } from '../api/movies';
+import { getShowtimes } from '../api/showtimes';
+import NotFoundState from '../components/NotFoundState';
 
 export default function ShowtimesPage() {
   const { movieId } = useParams();
@@ -8,19 +10,50 @@ export default function ShowtimesPage() {
   const [movie, setMovie] = useState(null);
   const [showtimes, setShowtimes] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [status, setStatus] = useState('loading'); // loading | ok | notfound
 
   useEffect(() => {
-    getMovie(movieId).then(setMovie);
-    getShowtimes(movieId).then((list) => {
-      setShowtimes(list);
-      if (list.length > 0) setSelectedDate(list[0].date);
-    });
+    let cancelled = false;
+    setStatus('loading');
+    getMovie(movieId)
+      .then((m) => {
+        if (cancelled) return;
+        if (!m) {
+          setStatus('notfound');
+          return;
+        }
+        setMovie(m);
+        setStatus('ok');
+      })
+      .catch(() => {
+        if (!cancelled) setStatus('notfound');
+      });
+    getShowtimes(movieId)
+      .then((list) => {
+        if (cancelled) return;
+        setShowtimes(list);
+        if (list.length > 0) setSelectedDate(list[0].date);
+      })
+      .catch(() => {
+        if (!cancelled) setShowtimes([]);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [movieId]);
 
   const dates = useMemo(() => Array.from(new Set(showtimes.map((s) => s.date))), [showtimes]);
   const filtered = showtimes.filter((s) => s.date === selectedDate);
 
-  if (!movie) return null;
+  if (status === 'loading') return null;
+  if (status === 'notfound' || !movie) {
+    return (
+      <NotFoundState
+        title="존재하지 않는 영화입니다"
+        message="요청하신 영화를 찾을 수 없습니다. 삭제되었거나 잘못된 주소일 수 있습니다."
+      />
+    );
+  }
 
   return (
     <div className="page">

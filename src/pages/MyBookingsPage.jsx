@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { cancelBooking, getMyBookings } from '../api/mockApi';
+import { cancelBooking, getMyBookings } from '../api/bookings';
 
 function StatusPill({ status, holdExpired, paymentStatus }) {
   if (status === '결제대기') {
