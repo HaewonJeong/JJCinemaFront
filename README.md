@@ -1,16 +1,40 @@
-# React + Vite
+## JJCinemaFront
+> 영화 예매 서비스 프론트엔드입니다. (백엔드: [JJCinemaBackend](../JJCinemaBackend))
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+## Member
+| 이름 | 담당 |
+| --- | --- |
+| 정해원 | Front Developer |
 
-Currently, two official plugins are available:
+## 기술 스택
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+<img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black"/>
+<img src="https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=white"/>
+<img src="https://img.shields.io/badge/React%20Router-7-CA4245?style=for-the-badge&logo=reactrouter&logoColor=white"/>
+<img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"/>
 
-## React Compiler
+## 주요 기능
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**일반 사용자**
+- 회원가입(닉네임/이메일/비밀번호 형식 검증, 이메일 실시간 중복확인)
+- 로그인/로그아웃(새로고침 시 서버 세션 기반으로 로그인 상태 복원)
+- 영화 목록 조회(상영중/상영예정 탭, 제목·장르 검색), 상영시간표 조회
+- 좌석 배치도에서 좌석 선택 → 임시선점(5분) → 모의 결제(성공/실패 시뮬레이션 버튼)
+- 내 예매 조회, 예매 취소
 
-## Expanding the Oxlint configuration
+**관리자**
+- 대시보드: 오늘/누적 매출·예매 통계, 상영별 좌석 점유율
+- 영화 관리: 등록/수정
+- 상영 관리: 날짜·시간 다중 슬롯 일괄 등록, 개별 수정, 여러 회차 선택 후 일괄 수정
+- 회원 관리: 역할 변경, 계정 활성/비활성 (본인 계정은 변경 불가)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## 프로젝트 구조
+```
+src/
+├── api/            # 도메인별 API 함수 
+├── components/     # 공통 레이아웃 및 라우트 가드
+├── context/        # AuthContext — 로그인 상태 전역 관리
+├── pages/          # 화면 단위 컴포넌트
+├── App.jsx         # 라우트 정의
+└── main.jsx
+```
