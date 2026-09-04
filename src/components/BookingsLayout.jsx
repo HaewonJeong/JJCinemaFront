@@ -1,6 +1,8 @@
-import { NavLink, Outlet } from 'react-router-dom';
+'use client';
 
-export default function BookingsLayout() {
+import NavLink from './NavLink';
+
+export default function BookingsLayout({ children }) {
   const tabClass = ({ isActive }) => 'movie-tab' + (isActive ? ' active' : '');
 
   return (
@@ -10,12 +12,12 @@ export default function BookingsLayout() {
         <p className="page-subtitle">예매한 영화와 좌석을 확인하세요</p>
 
         <div className="movie-tabs">
-          <NavLink to="/my-bookings" end className={tabClass}>내 예매 내역</NavLink>
+          <NavLink href="/my-bookings" end className={tabClass}>내 예매 내역</NavLink>
         </div>
       </aside>
 
       <div className="bookings-content">
-        <Outlet />
+        {children}
       </div>
     </div>
   );

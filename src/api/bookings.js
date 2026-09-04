@@ -55,7 +55,8 @@ export async function getBooking(bookingId) {
 }
 
 // 모의 결제. forceResult('SUCCESS' | 'FAILED')를 주면 결과를 강제하고, 없으면 임의 확률로 성공/실패한다.
-// 성공하면 예매가 CONFIRMED로 확정되고, 실패하거나 임시선점이 만료되면 좌석이 자동 해제(예매 취소)된다.
+// 성공하면 예매가 CONFIRMED로 확정된다. 실패하면 400 + 메시지만 오고 좌석/예매는 HELD 그대로 —
+// 임시선점 남은 시간(5분) 안에 재결제할 수 있다. (좌석은 임시선점이 만료돼야 풀린다.)
 export async function createPayment(bookingId, forceResult) {
   const res = await fetch(`${API_BASE}/payments`, {
     method: 'POST',
@@ -65,11 +66,7 @@ export async function createPayment(bookingId, forceResult) {
   });
   const body = await res.json();
   if (!res.ok) {
-    throw new Error(body.message || '결제에 실패했습니다.');
-  }
-  if (body.data.status === 'FAILED') {
-    // 백엔드는 결제 실패도 200으로 응답해서, 화면 쪽 실패 처리(catch)를 태우려면 여기서 던져야 함
-    throw new Error('결제에 실패했습니다. 좌석이 해제되었습니다.');
+    throw new Error(body.message || '결제에 실패했습니다. 다시 시도해주세요.');
   }
   return body.data;
 }

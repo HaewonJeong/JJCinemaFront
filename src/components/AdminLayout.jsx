@@ -1,4 +1,7 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+'use client';
+
+import { usePathname } from 'next/navigation';
+import NavLink from './NavLink';
 
 const MOVIE_SUBTABS = [
   { label: '등록된 영화', to: '/admin/movies' },
@@ -11,11 +14,11 @@ function isMovieSection(pathname) {
   return pathname.startsWith('/admin/movies') || pathname.startsWith('/admin/showtimes');
 }
 
-export default function AdminLayout() {
-  const location = useLocation();
+export default function AdminLayout({ children }) {
+  const pathname = usePathname();
   const tabClass = ({ isActive }) => 'admin-tab' + (isActive ? ' active' : '');
   const subtabClass = ({ isActive }) => 'admin-subtab' + (isActive ? ' active' : '');
-  const inMovieSection = isMovieSection(location.pathname);
+  const inMovieSection = isMovieSection(pathname);
 
   return (
     <div className="admin-shell">
@@ -24,25 +27,25 @@ export default function AdminLayout() {
         <p className="page-subtitle">영화·상영을 등록하고 좌석 점유율과 매출을 확인하세요</p>
 
         <nav className="admin-tabs">
-          <NavLink to="/admin/schedule" className={tabClass} end>스케줄·매출</NavLink>
+          <NavLink href="/admin/schedule" className={tabClass} end>스케줄·매출</NavLink>
 
-          <NavLink to="/admin/movies" className={'admin-tab' + (inMovieSection ? ' active' : '')}>영화 관리</NavLink>
+          <NavLink href="/admin/movies" className={'admin-tab' + (inMovieSection ? ' active' : '')}>영화 관리</NavLink>
           {inMovieSection && (
             <div className="admin-subtabs">
               {MOVIE_SUBTABS.map((tab) => (
-                <NavLink key={tab.to} to={tab.to} className={subtabClass} end>
+                <NavLink key={tab.to} href={tab.to} className={subtabClass} end>
                   {tab.label}
                 </NavLink>
               ))}
             </div>
           )}
 
-          <NavLink to="/admin/users" className={tabClass} end>회원 관리</NavLink>
+          <NavLink href="/admin/users" className={tabClass} end>회원 관리</NavLink>
         </nav>
       </aside>
 
       <div className="admin-main">
-        <Outlet />
+        {children}
       </div>
     </div>
   );

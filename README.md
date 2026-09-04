@@ -8,10 +8,20 @@
 
 ## 기술 스택
 
+<img src="https://img.shields.io/badge/Next.js-15-000000?style=for-the-badge&logo=nextdotjs&logoColor=white"/>
 <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black"/>
-<img src="https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=white"/>
-<img src="https://img.shields.io/badge/React%20Router-7-CA4245?style=for-the-badge&logo=reactrouter&logoColor=white"/>
 <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"/>
+
+> App Router 기반. 모든 화면은 클라이언트 컴포넌트(`'use client'`)이며, 백엔드 세션 API를 `fetch(credentials:'include')`로 호출한다.
+
+## 실행
+
+```bash
+npm install
+npm run dev        # http://localhost:5173
+```
+
+백엔드 주소는 `NEXT_PUBLIC_API_BASE` 환경변수로 지정한다(미지정 시 `http://localhost:8080/api`).
 
 ## 주요 기능
 
@@ -31,10 +41,14 @@
 ## 프로젝트 구조
 ```
 src/
-├── api/            # 도메인별 API 함수 
-├── components/     # 공통 레이아웃 및 라우트 가드
+├── app/            # App Router — 라우트/레이아웃 정의 (화면은 screens/에서 re-export)
+│   ├── (main)/                 # 상단 네비게이션 공통 레이아웃
+│   │   ├── movies/(browse)/    # 상영중/상영예정 탭 레이아웃
+│   │   └── (protected)/        # 로그인 필요 (booking/payment/my-bookings/admin)
+│   ├── login/ · signup/        # 네비게이션 없는 화면
+│   └── layout.jsx              # 루트 레이아웃 (폰트, AuthProvider)
+├── api/            # 도메인별 API 함수
+├── components/     # 공통 레이아웃, 라우트 가드, NavLink
 ├── context/        # AuthContext — 로그인 상태 전역 관리
-├── pages/          # 화면 단위 컴포넌트
-├── App.jsx         # 라우트 정의
-└── main.jsx
+└── screens/        # 화면 단위 컴포넌트 (구 pages/)
 ```

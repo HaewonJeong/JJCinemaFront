@@ -1,13 +1,16 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+'use client';
+
+import { useRouter } from 'next/navigation';
+import NavLink from './NavLink';
 import { useAuth } from '../context/AuthContext';
 
-export default function Layout() {
+export default function Layout({ children }) {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   function handleLogout() {
     logout();
-    navigate('/login', { replace: true });
+    router.replace('/login');
   }
 
   const navClass = ({ isActive }) => 'nav-link' + (isActive ? ' active' : '');
@@ -18,10 +21,10 @@ export default function Layout() {
         <div className="topbar-inner">
           <span className="brand">🎬 JJCinema</span>
           <nav className="topnav">
-            <NavLink to="/movies" className={navClass}>영화</NavLink>
-            {user && <NavLink to="/my-bookings" className={navClass}>내 예매</NavLink>}
+            <NavLink href="/movies" className={navClass}>영화</NavLink>
+            {user && <NavLink href="/my-bookings" className={navClass}>내 예매</NavLink>}
             {user?.role === 'admin' && (
-              <NavLink to="/admin" className={navClass}>관리자</NavLink>
+              <NavLink href="/admin" className={navClass}>관리자</NavLink>
             )}
           </nav>
           {user ? (
@@ -34,14 +37,14 @@ export default function Layout() {
             </div>
           ) : (
             <div className="user-box">
-              <button className="btn btn-ghost btn-sm" onClick={() => navigate('/signup')}>회원가입</button>
-              <button className="btn btn-outline btn-sm" onClick={() => navigate('/login')}>로그인</button>
+              <button className="btn btn-ghost btn-sm" onClick={() => router.push('/signup')}>회원가입</button>
+              <button className="btn btn-outline btn-sm" onClick={() => router.push('/login')}>로그인</button>
             </div>
           )}
         </div>
       </header>
       <main className="content">
-        <Outlet />
+        {children}
       </main>
     </div>
   );

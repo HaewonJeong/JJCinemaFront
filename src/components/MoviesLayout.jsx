@@ -1,11 +1,13 @@
-import { NavLink, Outlet } from 'react-router-dom';
+'use client';
+
+import NavLink from './NavLink';
 
 const TABS = [
   { to: '/movies/now-showing', label: '현재상영작' },
   { to: '/movies/upcoming', label: '개봉예정작' },
 ];
 
-export default function MoviesLayout() {
+export default function MoviesLayout({ children }) {
   const tabClass = ({ isActive }) => 'movie-tab' + (isActive ? ' active' : '');
 
   return (
@@ -16,7 +18,7 @@ export default function MoviesLayout() {
 
         <div className="movie-tabs">
           {TABS.map((tab) => (
-            <NavLink key={tab.to} to={tab.to} className={tabClass}>
+            <NavLink key={tab.to} href={tab.to} className={tabClass}>
               {tab.label}
             </NavLink>
           ))}
@@ -24,7 +26,7 @@ export default function MoviesLayout() {
       </aside>
 
       <div className="movie-content">
-        <Outlet />
+        {children}
       </div>
     </div>
   );
