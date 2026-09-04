@@ -1,1 +1,1 @@
-export const API_BASE = 'http://localhost:8080/api'; //백엔드 주소 상수 추가
+export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api';
