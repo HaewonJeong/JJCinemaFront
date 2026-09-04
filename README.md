@@ -1,11 +1,6 @@
 ## JJCinemaFront
 > 영화 예매 서비스 프론트엔드입니다. (백엔드: [JJCinemaBackend](../JJCinemaBackend))
 
-## Member
-| 이름 | 담당 |
-| --- | --- |
-| 정해원 | Front Developer |
-
 ## 기술 스택
 
 <img src="https://img.shields.io/badge/Next.js-15-000000?style=for-the-badge&logo=nextdotjs&logoColor=white"/>
