@@ -1,4 +1,14 @@
 import { API_BASE } from './client';
+// 서버는 LocalDateTime을 오프셋 없이("2026-09-04T17:22:04.453269") 내려준다.
+// 서버 JVM과 브라우저가 같은 타임존(KST)이면 로컬로 파싱하는 게 맞다.
+// (서버를 UTC로 배포하면 이 가정이 깨지므로, 그땐 백엔드가 holdRemainingSeconds 같은
+//  '남은 초'를 내려주도록 바꿔야 한다. — 아래 getBooking 주석 참고)
+export function parseServerDateTime(value) {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  const d = new Date(String(value).trim().replace(' ', 'T'));
+  return Number.isNaN(d.getTime()) ? null : d;
+}
 
 //예매하기 (같은 상영 회차에 대한 더블 부킹 방지, )
 /*showtimeRepository.findByIdForUpdate(...) — @Lock(PESSIMISTIC_WRITE)가 걸려있어서,
@@ -50,7 +60,9 @@ export async function getBooking(bookingId) {
     moviePoster: '🎬',
     moviePosterUrl: b.moviePosterBase64 || undefined,
     showtime: { date: b.date, time: b.time.slice(0, 5), theater: b.theater },
-    holdExpiresAt: b.holdExpiresAt,
+    // 카운트다운은 holdRemainingSeconds(남은 초)를 우선 사용. holdExpiresAt는 폴백/디버그용.
+    holdRemainingSeconds: b.holdRemainingSeconds ?? null,
+    holdExpiresAt: parseServerDateTime(b.holdExpiresAt)?.toISOString() ?? null,
   };
 }
 
@@ -75,7 +87,13 @@ export async function createPayment(bookingId, forceResult) {
 const BOOKING_STATUS_MAP = { HELD: '결제대기', CONFIRMED: '예매완료', CANCELLED: '취소됨' };
 
 function toDisplayBooking(b) {
-  const holdExpiresAt = b.holdExpiresAt;
+  const expiresDate = parseServerDateTime(b.holdExpiresAt);
+  // 남은 초가 오면 그걸로 만료 판정 (타임존 무관), 없으면 절대시각 폴백.
+  const holdExpired =
+    b.status === 'HELD' &&
+    (b.holdRemainingSeconds != null
+      ? b.holdRemainingSeconds <= 0
+      : !expiresDate || expiresDate.getTime() < Date.now());
   return {
     id: String(b.bookingId),
     showtimeId: String(b.showtimeId),
@@ -83,11 +101,12 @@ function toDisplayBooking(b) {
     seatIds: b.seatCodes,
     totalPrice: b.totalPrice,
     movieTitle: b.movieTitle,
-    moviePoster: '🎬', // ← 이 줄 추가
+    moviePoster: '🎬',
     moviePosterUrl: b.moviePosterBase64 || undefined,
     showtime: { date: b.date, time: b.time.slice(0, 5), theater: b.theater },
-    holdExpiresAt,
-    holdExpired: b.status === 'HELD' && (!holdExpiresAt || new Date(holdExpiresAt).getTime() < Date.now()),
+    holdRemainingSeconds: b.holdRemainingSeconds ?? null,
+    holdExpiresAt: expiresDate?.toISOString() ?? null,
+    holdExpired,
     paymentStatus: b.paymentStatus === 'REFUNDED' ? '환불됨' : null,
   };
 }

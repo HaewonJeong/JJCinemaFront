@@ -16,7 +16,7 @@ export default function PaymentPage() {
   const { bookingId } = useParams();
   const router = useRouter();
   const [booking, setBooking] = useState(null);
-  const [remainingMs, setRemainingMs] = useState(0);
+  const [remainingMs, setRemainingMs] = useState(null); // null = 아직 계산 전 (초기값 0이면 "만료됨"이 깜빡임)
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
   const [paymentFailed, setPaymentFailed] = useState(false); // 결제 실패 후엔 좌석을 자동 취소하지 않는다 (남은 시간 안에 재시도 가능)
@@ -44,8 +44,17 @@ export default function PaymentPage() {
   }, [refresh]);
 
   useEffect(() => {
-    if (!booking?.holdExpiresAt) return undefined;
-    const tick = () => setRemainingMs(new Date(booking.holdExpiresAt).getTime() - Date.now());
+    if (!booking) return undefined;
+    // 서버가 준 '남은 초'로 클라 기준 마감시각을 한 번 고정한다 (타임존/시계오차 무관).
+    // 구버전 응답 대비 holdExpiresAt(절대시각) 폴백.
+    const deadline =
+      booking.holdRemainingSeconds != null
+        ? Date.now() + booking.holdRemainingSeconds * 1000
+        : booking.holdExpiresAt
+          ? new Date(booking.holdExpiresAt).getTime()
+          : null;
+    if (deadline == null) return undefined;
+    const tick = () => setRemainingMs(deadline - Date.now());
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
@@ -113,7 +122,7 @@ export default function PaymentPage() {
     );
   }
 
-  const expired = remainingMs <= 0;
+  const expired = remainingMs !== null && remainingMs <= 0;
 
   return (
     <div className="page">
@@ -135,7 +144,9 @@ export default function PaymentPage() {
         </div>
         <div>
           <span className="summary-label">좌석 임시선점 남은 시간</span>
-          <span className="summary-value">{expired ? '만료됨' : formatRemaining(remainingMs)}</span>
+          <span className="summary-value">
+            {remainingMs === null ? '확인 중…' : expired ? '만료됨' : formatRemaining(remainingMs)}
+          </span>
         </div>
 
         {error && <p className="form-error">{error}</p>}
