@@ -7,7 +7,7 @@
 <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black"/>
 <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"/>
 
-## 실행
+## 로컬 환경 실행
 
 ```bash
 npm install
