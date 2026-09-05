@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { getAllMovies } from '../api/movies';
+import { deleteMovie, getAllMovies } from '../api/movies';
 import Pagination from '../components/Pagination';
 
 const PAGE_SIZE = 10;
@@ -92,6 +92,21 @@ export default function AdminMoviesPage() {
               <td>{m.status}</td>
               <td>
                 <Link href={`/admin/movies/${m.id}/edit`} className="btn btn-sm btn-outline">수정</Link>
+                <button
+                  className="btn btn-sm btn-outline"
+                  onClick={async () => {
+                    if (!confirm(`"${m.title}"을(를) 삭제할까요?`)) return;
+                    try {
+                      await deleteMovie(m.id);
+                      alert('삭제되었습니다.');
+                      getAllMovies().then(setMovies);
+                    } catch (err) {
+                      alert(err.message);
+                    }
+                  }}
+                >
+                  삭제
+                </button>
               </td>
             </tr>
           ))}

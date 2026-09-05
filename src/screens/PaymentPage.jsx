@@ -118,6 +118,9 @@ export default function PaymentPage() {
         <button className="btn btn-primary" onClick={() => router.push(`/booking/${booking.showtimeId}`)}>
           좌석 다시 선택하기
         </button>
+        <button className="btn btn-outline" onClick={()=> router.push('/movies')}>
+          결제 취소
+        </button>
       </div>
     );
   }
@@ -126,7 +129,22 @@ export default function PaymentPage() {
 
   return (
     <div className="page">
-      <button className="btn-back" onClick={() => releaseAndGo(`/booking/${booking.showtimeId}`)}>← 좌석 선택</button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <button className="btn-back" onClick={() => releaseAndGo(`/booking/${booking.showtimeId}`)}>← 좌석 선택</button>
+        <button
+          className="btn-back"
+          onClick={async () => {
+            try {
+              await cancelBooking(bookingId);
+            } catch {
+              // 이미 처리된 예매라면 무시하고 이동
+            }
+            router.push('/movies');
+          }}
+        >
+          결제 취소
+        </button>
+      </div>
 
       <h1 className="page-title">결제하기</h1>
       <p className="page-subtitle">

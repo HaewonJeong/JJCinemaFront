@@ -165,4 +165,16 @@ export async function updateShowtimesBulk(showtimeIds, patch) {
     throw new Error(friendlyShowtimeError(body.message, '일괄 수정에 실패했습니다.'));
   }
   return body.data.map(toDisplayShowtime);
-}
+  }
+  //관리자 상영 삭제
+  export async function deleteShowtime(showtimeId) {
+    const res = await fetch(`${API_BASE}/admin/showtimes/${showtimeId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+    });
+    const body = await res.json();
+    if(!res.ok){
+      throw new Error(friendlyShowtimeError(body.message, '상영 삭제에 실패했습니다.'));
+    }
+    
+  }

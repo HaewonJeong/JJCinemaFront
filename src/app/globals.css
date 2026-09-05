@@ -231,11 +231,14 @@ a {
 
 /* ---------- Buttons ---------- */
 .btn {
+  display: inline-block;
   border: 1.5px solid transparent;
   border-radius: var(--radius-sm);
   padding: 10px 16px;
   font-size: 14px;
   font-weight: 600;
+  text-decoration: none;
+  text-align: center;
   cursor: pointer;
   transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.12s var(--ease),
     border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;

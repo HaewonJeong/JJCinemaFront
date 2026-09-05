@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { getAllShowtimesAdmin, updateShowtimesBulk } from '../api/showtimes';
+import { deleteShowtime, getAllShowtimesAdmin, updateShowtimesBulk } from '../api/showtimes';
 
 export default function AdminShowtimeManagePage() {
   const [showtimes, setShowtimes] = useState([]);
@@ -130,6 +130,22 @@ export default function AdminShowtimeManagePage() {
                     <td>{s.price.toLocaleString()}원</td>
                     <td>
                       <Link href={`/admin/showtimes/${s.id}/edit`} className="btn btn-sm btn-outline">수정</Link>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline"
+                        onClick={async () => {
+                          if (!confirm(`${s.date} ${s.time} 상영을 삭제 할까요?`)) return;
+                          try {
+                            await deleteShowtime(s.id);
+                            alert('삭제되었습니다.');
+                            refresh();
+                          } catch (err) {
+                            alert(err.message);
+                          }
+                        }}
+                      >
+                        삭제
+                      </button>
                     </td>
                   </tr>
                 ))}

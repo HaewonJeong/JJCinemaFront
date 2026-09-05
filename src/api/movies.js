@@ -136,3 +136,15 @@ export async function createMovie(movie) {
   }
   return toDisplayMovie(resBody.data, maps);
 }
+
+//영화 삭제
+export async function deleteMovie(movieId) {
+  const res = await fetch(`${API_BASE}/admin/movies/${movieId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  const body = await res.json();
+  if (!res.ok) {
+    throw new Error(body.message || '영화 삭제에 실패했습니다.');
+  }
+}

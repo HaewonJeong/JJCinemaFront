@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { createMovie, getGenres, getMovie, getRatings, updateMovie } from '../api/movies';
+import { createMovie, getGenres, getMovie, getRatings, updateMovie,deleteMovie } from '../api/movies';
 import NotFoundState from '../components/NotFoundState';
 
 const emptyForm = {
