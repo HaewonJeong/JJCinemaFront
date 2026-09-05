@@ -7,7 +7,7 @@
 <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black"/>
 <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"/>
 
-## 실행
+## 로컬 환경 실행
 
 ```bash
 npm install
@@ -28,3 +28,8 @@ npm run dev        # http://localhost:5173
 - 영화 관리: 등록/수정
 - 상영 관리: 날짜·시간 다중 슬롯 일괄 등록, 개별 수정, 여러 회차 선택 후 일괄 수정
 - 회원 관리: 역할 변경, 계정 활성/비활성 (본인 계정은 변경 불가)
+
+## 시연
+
+## 멤버
+⚙️**BackEnd Developer** | 정해원
